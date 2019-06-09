@@ -1,23 +1,27 @@
-from threading import Thread
+import json
 import socket
-import random
+from threading import Thread
+
+from helpers.helper import get_milliseconds
 
 
 class Sender(Thread):
-    def __init__(self, name):
-        super().__init__(name=name)
+    def __init__(self, pid, clock, events):
+        super().__init__()
+        self.pid = pid
+        self.clock = clock
+        self.events = events
 
-    def send(self, time):
-        selected_process = self.get_random_process().split(" ")
-        process_host, process_port = selected_process[1], selected_process[2]
+    def send(self, pid, address):
+        self.clock.increment()
+        send_time = self.clock.read()
         send_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        send_socket.sendto(time, process_host, process_port)
+        send_socket.sendto(json.dumps(send_time).encode(), address)
         send_socket.close()
-
-    def get_random_process(self):
-        while True:
-            processes = open("config").read().splitlines()
-            selected_process = random.choice(processes)
-            process_name = selected_process.split(" ")[0]
-            if process_name != self.name:
-                return selected_process
+        self.events.increment()
+        print("{} {} {} s {}".format(
+            get_milliseconds(),
+            self.pid,
+            send_time,
+            pid
+        ))

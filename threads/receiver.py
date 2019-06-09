@@ -1,22 +1,33 @@
-from threading import Thread
+import json
 import socket
+from threading import Thread
 
-
-buffer = 4096
+from helpers.helper import get_milliseconds, get_process_id
 
 
 class Receiver(Thread):
-    def __init__(self, name, host, port):
-        super().__init__(name=name)
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.address = (host, port)
+    def __init__(self, pid, address, clock):
+        super().__init__()
+        self.pid = pid
+        self.address = address
+        self.clock = clock
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.buffer = 4096
 
     def run(self):
-        self.start_socket()
-        self.listen_socket()
+        self.socket.bind(self.address)
+        self.listen()
 
-    def start_socket(self):
-        self.sock.bind(self.address)
-
-    def listen_socket(self):
-        new_time = self.sock.recvfrom(buffer)
+    def listen(self):
+        while True:
+            received_time, address = self.socket.recvfrom(self.buffer)
+            received_time = json.loads(received_time.decode())
+            self.clock.update_value(received_time)
+            self.clock.increment()
+            print("{} {} {} r {} {}".format(
+                get_milliseconds(),
+                self.pid,
+                self.clock.read(),
+                get_process_id(address[0]),  # make this the process id
+                received_time
+            ))
