@@ -11,6 +11,7 @@ class Sender(Thread):
         self.pid = pid
         self.clock = clock
         self.events = events
+        self.daemon = True
 
     def send(self, pid, address):
         self.clock.increment()

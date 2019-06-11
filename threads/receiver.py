@@ -13,6 +13,7 @@ class Receiver(Thread):
         self.clock = clock
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.buffer = 4096
+        self.daemon = True
 
     def run(self):
         self.socket.bind(self.address)
@@ -28,6 +29,6 @@ class Receiver(Thread):
                 get_milliseconds(),
                 self.pid,
                 self.clock.read(),
-                get_process_id(address[0]),  # make this the process id
+                get_process_id(address[0]),
                 received_time
             ))
