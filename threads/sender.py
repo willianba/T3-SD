@@ -2,7 +2,7 @@ import json
 import socket
 from threading import Thread
 
-from helpers.helper import get_milliseconds
+from helpers.time_helper import get_milliseconds
 
 
 class Sender(Thread):
