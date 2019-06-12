@@ -2,6 +2,19 @@ import socket
 from threading import Thread
 
 
+def send_confirmation(address):
+    confirmation_address = get_confirmation_address(address)
+    send_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    send_socket.sendto(b"confirm", confirmation_address)
+    send_socket.close()
+
+
+def get_confirmation_address(address):
+    host = address[0]
+    port = int(get_process_address(host)[1]) + 1
+    return (host, port)
+
+
 class Confirmatory(Thread):
     def __init__(self, address):
         super().__init__()
@@ -14,7 +27,7 @@ class Confirmatory(Thread):
         self.socket.bind(self.address)
         self.socket.settimeout(0.5)
 
-    def confirm(self):
+    def receive_confirmation(self):
         tries = 0
         while True:
             if tries < 3:
