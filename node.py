@@ -17,7 +17,7 @@ class Node:
         self.clock.increment()
         clock_value = self.clock.read()
         sender = create_sender_thread(self.pid)
-        sender.send(address, clock_value)
+        sender.send(pid, address, clock_value)
 
     def receive_confirmation(self):
         address = (self.address[0], self.address[1] + 1)
