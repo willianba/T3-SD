@@ -21,27 +21,53 @@ def main():
 def create_nodes():
     global current_node
     for line in processes:
-        process = line.split(" ")
-        if process[0] == sys.argv[2]:
-            current_node = Node(process[0], process[1], int(process[2]), events)
+        process_id, process_address = get_process_parameters(line)
+        if process_id == sys.argv[2]:
+            current_node = Node(process_id, process_address, events)
         else:
-            nodes[process[0]] = Node(process[0], process[1], process[2], events)
+            nodes[process_id] = Node(process_id, process_address, events)
+
+
+def get_process_parameters(process_line):
+    process = process_line.split(" ")
+    process_id = process[0]
+    process_address = process[1], int(process[2])
+    return process_id, process_address
 
 
 def run_events():
     while events.read() < 100:
         time.sleep(random.randint(1, 2))
-        if random.choice([True, False]):
+        if is_local():
             current_node.increment_local()
-            events.increment()
+            increment_event()
         elif events.read() > 5:
-            target = nodes[random.choice(list(nodes.keys()))]
-            current_node.send(target.pid, target.address)
-            if current_node.confirm():
-                events.increment()
-            else:
-                print("Cannot send clock value. Exiting.")
-                sys.exit(-2)
+            send_clock_value()   
+            confirm_value_receipt()
+            increment_event()
+
+
+def is_local():
+    return random.choice([True, False])
+
+
+def increment_event():
+    events.increment()
+
+
+def send_clock_value():
+    target = get_target_node()
+    current_node.send_clock_value(target.pid, target.address)
+
+
+def get_target_node():
+    return nodes[random.choice(list(nodes.keys()))]
+
+
+def confirm_value_receipt():
+    if not current_node.receive_confirmation():
+        print("Cannot send clock value. Exiting.")
+        sys.exit(-2)
 
 
 if __name__ == "__main__":

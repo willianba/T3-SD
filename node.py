@@ -6,9 +6,9 @@ from counters.lamport_clock import LamportClock
 
 
 class Node:
-    def __init__(self, pid, host, port, events):
+    def __init__(self, pid, address, events):
         self.pid = pid
-        self.address = (host, int(port))
+        self.address = address
         self.events = events
         self.clock = LamportClock()
 
@@ -16,7 +16,7 @@ class Node:
         receiver = Receiver(self.pid, self.address, self.clock)
         receiver.start()
 
-    def send(self, pid, address):
+    def send_clock_value(self, pid, address):
         self.clock.increment()
         clock_value = self.clock.read()
         sender = Sender(self.pid)
@@ -24,12 +24,12 @@ class Node:
         sender.join()
         sender.send(pid, address, clock_value)
 
-    def confirm(self):
+    def receive_confirmation(self):
         address = (self.address[0], self.address[1] + 1)
         confirmatory = Confirmatory(address)
         confirmatory.start()
         confirmatory.join()
-        result = confirmatory.confirm()
+        result = confirmatory.receive_confirmation()
         return result
 
     def increment_local(self):
