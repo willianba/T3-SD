@@ -10,7 +10,6 @@ from helpers.threads_helper import create_synchronizer_thread
 
 current_node = None
 config_file = sys.argv[1]
-processes = open(config_file)
 nodes = {}
 last_node_id = None
 events = Counter()
@@ -26,6 +25,7 @@ def main():
 def create_nodes():
     global current_node
     global last_node_id
+    processes = open(config_file)
     for line in processes:
         process_id, process_address = get_process_parameters(line)
         if process_id == sys.argv[2]:
@@ -33,6 +33,7 @@ def create_nodes():
         else:
             nodes[process_id] = Node(process_id, process_address, events)
         last_node_id = process_id
+    processes.close()
 
 
 def synchronize():
@@ -46,7 +47,7 @@ def synchronize():
 
 
 def get_process_list():
-    return processes.readlines()
+    return open(config_file).readlines()
 
 
 def run_events():
