@@ -1,5 +1,6 @@
 from threads.sender import Sender
 from threads.receiver import Receiver
+from threads.confirmatory import Confirmatory
 from helpers.helper import get_milliseconds
 from counters.lamport_clock import LamportClock
 
@@ -16,10 +17,20 @@ class Node:
         receiver.start()
 
     def send(self, pid, address):
-        sender = Sender(self.pid, self.clock, self.events)
+        self.clock.increment()
+        clock_value = self.clock.read()
+        sender = Sender(self.pid)
         sender.start()
-        sender.send(pid, address)
         sender.join()
+        sender.send(pid, address, clock_value)
+
+    def confirm(self):
+        address = (self.address[0], self.address[1] + 1)
+        confirmatory = Confirmatory(address)
+        confirmatory.start()
+        confirmatory.join()
+        result = confirmatory.confirm()
+        return result
 
     def increment_local(self):
         self.clock.increment()

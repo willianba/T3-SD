@@ -37,6 +37,11 @@ def run_events():
         elif events.read() > 5:
             target = nodes[random.choice(list(nodes.keys()))]
             current_node.send(target.pid, target.address)
+            if current_node.confirm():
+                events.increment()
+            else:
+                print("Cannot send clock value. Exiting.")
+                sys.exit(-2)
 
 
 if __name__ == "__main__":
