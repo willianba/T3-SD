@@ -1,6 +1,8 @@
 import socket
 from threading import Thread
 
+from helpers.process_helper import get_process_address
+
 
 def send_confirmation(address):
     confirmation_address = get_confirmation_address(address)
