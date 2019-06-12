@@ -3,7 +3,8 @@ import socket
 from threading import Thread
 
 from threads.confirmatory import send_confirmation
-from helpers.helper import get_milliseconds, get_process_id, get_process_address
+from helpers.time_helper import get_milliseconds
+from helpers.process_helper import get_process_id, get_process_address
 
 
 class Receiver(Thread):
