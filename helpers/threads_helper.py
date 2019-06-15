@@ -1,6 +1,5 @@
 from threads.sender import Sender
 from threads.receiver import Receiver
-from threads.confirmatory import Confirmatory
 from threads.synchronizer import Synchronizer
 
 
@@ -13,13 +12,6 @@ def create_sender_thread(pid):
     sender.start()
     sender.join()
     return sender
-
-
-def create_confirmatory_thread(address):
-    confirmatory = Confirmatory(address)
-    confirmatory.start()
-    confirmatory.join()
-    return confirmatory
 
 
 def create_synchronizer_thread(pid, address, processes):

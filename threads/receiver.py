@@ -2,9 +2,8 @@ import json
 import socket
 from threading import Thread
 
-from threads.confirmatory import send_confirmation
 from helpers.time_helper import get_milliseconds
-from helpers.process_helper import get_process_id, get_process_address
+from helpers.process_helper import get_process_id
 
 
 class Receiver(Thread):
@@ -24,7 +23,7 @@ class Receiver(Thread):
     def listen(self):
         while True:
             received_time, address = self.socket.recvfrom(self.buffer)
-            send_confirmation(address)
+            self.socket.sendto(b"confirmation", address)
             received_time = json.loads(received_time.decode())
             self.clock.update_value(received_time)
             self.clock.increment()

@@ -4,7 +4,6 @@ import random
 
 from node import Node
 from counters.counter import Counter
-from threads.synchronizer import Synchronizer
 from helpers.process_helper import get_process_parameters
 from helpers.threads_helper import create_synchronizer_thread
 
@@ -38,7 +37,7 @@ def create_nodes():
 
 def synchronize():
     synchronizer = create_synchronizer_thread(current_node.pid, current_node.address, get_process_list())
-    if (sys.argv[2] == last_node_id):
+    if sys.argv[2] == last_node_id:
         print("Sending signal to all processes.")
         synchronizer.send_signal()
     else:
@@ -57,8 +56,7 @@ def run_events():
             current_node.increment_local()
             increment_event()
         else:
-            send_clock_value()   
-            confirm_value_receipt()
+            send_clock_value()
             increment_event()
 
 
@@ -72,17 +70,13 @@ def increment_event():
 
 def send_clock_value():
     target = get_target_node()
-    current_node.send_clock_value(target.pid, target.address)
+    if not current_node.send_clock_value(target.pid, target.address):
+        print("Cannot send clock value. Exiting.")
+        sys.exit(-2)
 
 
 def get_target_node():
     return nodes[random.choice(list(nodes.keys()))]
-
-
-def confirm_value_receipt():
-    if not current_node.receive_confirmation():
-        print("Cannot send clock value. Exiting.")
-        sys.exit(-2)
 
 
 if __name__ == "__main__":
